@@ -1,0 +1,261 @@
+import React from 'react';
+import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS } from 'chart.js/auto'
+
+function Chart(props) {
+
+    //if classname === blue-card we need to show today's data on the graph
+function Chart(props) {
+
+    //trying to get today's date so we can match today with today's weather from the api 
+    let date = new Date();
+    let today = date.getDate().toString();
+    let month = (date.getMonth() + 1).toString();
+    if (month.length === 1) {
+        month = ("0" + month)
+    }
+    let temps = [];
+    let todayTemps = [];
+    let todayArr = props.allForecastData.filter(item => {
+        return item.dt_txt.includes(month + "-" + today)
+    });
+    let todayFiltered = todayArr.filter(item => {
+        return item.main.temp
+    })
+    if (!props.activeButton) {
+        todayTemps.push(todayFiltered)
+    }
+    let filtered = props.allForecastData.filter(item => {
+        return item.dt_txt.includes(props.selectedForecast.slice(0, 10))
+    })
+    filtered.map(item => {
+        return temps.push(item)
+    })
+    return (
+        <div className="weather-graph">
+            <div className="graph">
+                <Line
+                    data={{
+                        labels: props.activeButton.includes("blue-card current-weather") || !props.activeButton  ?
+                            todayArr.map(item => item.dt_txt.slice(10, 19)) : temps.map(item => item.dt_txt.slice(10, 19)),
+                        datasets: [{
+                            label: "Temperature",
+                            data: props.activeButton.includes("blue-card") || !props.activeButton ?
+                                todayArr.map(item => Math.round(item.main.temp)) : temps.map(item => Math.round(item.main.temp)),
+                            fill: true,
+                            backgroundColor: "#5596f67a",
+                            borderColor: "#5596f6",
+                            pointStyle: 'circle',
+                            pointRadius: 5,
+                            pointHoverRadius: 10,
+                            lineTension: 0.3,
+                        }]
+                    }}
+                    options={{
+                        legend: {
+                            display: false
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }}
+                />
+            </div>
+        </div>
+    )
+}
+
+/*props.activeButton.includes("blue-card") || !props.activeButton ? 
+todayArr.map(item => {return Math.round(item.main.temp)}) : temps.map(item => {return Math.round(item.temp)})*/
+
+export default Chart; 
+  11  
+src/index.css
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600&display=swap');
+*{
+  font-family: 'Rubik', sans-serif;
+}
+body {
+  margin: 0;
+  background-color: rgb(194, 202, 203);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Montserrat', sans-serif;
+}
+.weather-container {
+  width: 1200px;
+  height: 600px;
+  border-radius: 10px;
+  background-color: white;
+  margin-top: 100px;
+  display: grid;
+  grid-template-columns: 300px auto;
+  grid-template-rows: auto auto auto 250px;
+  padding: 20px;
+  box-shadow: 10px 10px 5px #787878;
+}
+.search-bar {
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+}
+.search-bar input {
+  width: 200px;
+  height: 30px;
+  border-radius: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.268);
+}
+.search-bar button {
+  height: 100%;
+  border-radius: 8px;
+  border: none;
+  background-color: #5596f6;
+  color: white;
+  width: 50px;
+  margin-left: 15px;
+}
+.search-bar button:hover {
+  background-color: #2474ed; 
+  border: 1px solid rgb(128, 197, 214);
+  color: rgb(255, 255, 255);
+}
+/*----- Current Weather ------*/
+.current-weather-container {
+  grid-column: 1;
+  grid-row: 2 / 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  line-height: 20px;
+}
+.current-weather {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.city{
+  /* font-size: small; */
+  opacity: 0.9;
+  /* font-size: small; */
+  /* margin-left: 50px; */
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* .weather-icon {
+  margin-bottom: 0;
+} */
+
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 48
+}
+.temp {
+  font-size: 40px;
+  margin-right: 30px;
+}
+.condition {
+  font-size: 40px;
+}
+/*------Extra Data-----*/
+.extra-data {
+  grid-column: 1;
+  grid-row: 4;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  gap: 40px;
+}
+.extra-data-title {
+  font-size: 20px;
+  font-weight: 100;
+  opacity: 0.5;
+}
+.extra-data p {
+  font-size: 30px;
+}
+/*------Weather Graph-----*/
+.weather-graph {
+  grid-column: 2;
+  grid-row: 1 / 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  color: #5596f67a;
+}
+.graph {
+  width: 750px;
+  color: #5596f6;
+}
+/*------Weather Forecast-----*/
+.weather-forecast {
+  grid-column: 2;
+  grid-row: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 25px;
+}
+.forecast-card {
+  background-color: white;
+  width: 150px;
+  height: 200px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  line-height: 2px;
+}
+
+.forecast-card:hover {
+  /* border: 1px none #00000070; */
+  background-color: #5596f6;
+  color: white;
+}
+.forecast-card img {
+  width: 80px;
+  pointer-events: none;
+}
+.forecast-card p {
+  pointer-events: none;
+}
+.forecast-date{
+  opacity: 0.7;
+}
+
+.forecast-humidity {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.forecast-conditions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.blue-card {
+  background-color: #5596f6;
+}
